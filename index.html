@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      grid-gap: 5px;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ADD8E6;
+    }
+
+    #result {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    #reset {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #reset:hover {
+      background-color: #ddd;
+    }
+
+    /* Adding grid background */
+    body {
+      background-color: #eee;
+    }
+  </style>
+  <title>Tic Tac Toe</title>
+</head>
+<body>
+
+  <h1>Tic Tac Toe</h1>
+
+  <label for="mode">Select mode:</label>
+  <select id="mode" onchange="changeMode()">
+    <option value="single">Single Player</option>
+    <option value="multi">Multiplayer</option>
+  </select>
+
+  <div id="board"></div>
+
+  <div id="result"></div>
+
+  <button id="reset" onclick="resetGame()">Reset Game</button>
+
+  <script>
+    let currentPlayer = 'X';
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let mode = 'single';
+
+    function changeMode() {
+      mode = document.getElementById('mode').value;
+      resetGame();
+    }
+
+    function resetGame() {
+      currentPlayer = 'X';
+      board = ['', '', '', '', '', '', '', '', ''];
+      document.getElementById('result').innerText = '';
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const boardElement = document.getElementById('board');
+      boardElement.innerHTML = '';
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.setAttribute('data-index', i);
+        cell.innerText = board[i];
+        cell.addEventListener('click', handleCellClick);
+        boardElement.appendChild(cell);
+      }
+    }
+
+    function handleCellClick(event) {
+      const index = event.target.getAttribute('data-index');
+
+      if (board[index] === '' && !isGameFinished()) {
+        board[index] = currentPlayer;
+        renderBoard();
+
+        if (checkWinner()) {
+          document.getElementById('result').innerText = `Player ${currentPlayer} wins!`;
+        } else if (isBoardFull()) {
+          document.getElementById('result').innerText = 'It\'s a tie!';
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+          if (mode === 'single' && currentPlayer === 'O') {
+            computerMove();
+          }
+        }
+      }
+    }
+
+    function isGameFinished() {
+      return document.getElementById('result').innerText !== '';
+    }
+
+    function isBoardFull() {
+      return board.every(cell => cell !== '');
+    }
+
+    function checkWinner() {
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+      ];
+
+      return winPatterns.some(pattern =>
+        pattern.every(index => board[index] === currentPlayer)
+      );
+    }
+
+    function computerMove() {
+      const emptyCells = board.reduce((acc, cell, index) => {
+        if (cell === '') {
+          acc.push(index);
+        }
+        return acc;
+      }, []);
+
+      const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      board[randomIndex] = currentPlayer;
+      renderBoard();
+
+      if (checkWinner()) {
+        document.getElementById('result').innerText = 'Computer wins!';
+      } else if (isBoardFull()) {
+        document.getElementById('result').innerText = 'It\'s a tie!';
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      }
+    }
+
+    // Initial rendering
+    renderBoard();
+  </script>
+
+</body>
+</html>
+     
+        
